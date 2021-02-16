@@ -1,9 +1,15 @@
+import os
+
 # --------------------------------
 #       Dataset
 # --------------------------------
 
-SHOW_IMAGES = False
+DATASET_NAME = 'gehler'
+SUBSET = 0
 FOLDS = 3
+FOLD = 0
+TRAINING_FOLDS, TEST_FOLDS = [], []
+SHOW_IMAGES = False
 DATA_FRAGMENT = -1
 BOARD_FILL_COLOR = 1e-5
 
@@ -11,62 +17,11 @@ BOARD_FILL_COLOR = 1e-5
 #       Model
 # --------------------------------
 
-PATH_TO_MODEL = "models/fc4"
+PATH_TO_MODEL = os.path.join("models", "fc4")
 FCN_INPUT_SIZE = 512
 
-# --------------------------------
-#       Data augmentation
-# --------------------------------
 
-# Use data augmentation?
-AUGMENTATION = True
-
-# Rotation angle
-AUGMENTATION_ANGLE = 60
-
-# Patch scale
-AUGMENTATION_SCALE = [0.1, 1.0]
-
-# Random left-right flip?
-AUGMENTATION_FLIP_LEFTRIGHT = True
-
-# Random top-down flip?
-AUGMENTATION_FLIP_TOPDOWN = False
-
-# Color rescaling?
-AUGMENTATION_COLOR = 0.8
-
-# Cross-channel terms
-AUGMENTATION_COLOR_OFFDIAG = 0.0
-
-# Augment Gamma?
-AUGMENTATION_GAMMA = 0.0
-
-# Augment using a polynomial curve?
-USE_CURVE = False
-
-# Apply different gamma and curve to left/right halves?
-SPATIALLY_VARIANT = False
-
-# The gamma used in the AlexNet branch to make patches in sRGB
-INPUT_GAMMA = 2.2
-
-# The gamma for visualization
-VIS_GAMMA = 2.2
-
-# Shuffle the images, after each epoch?
-DATA_SHUFFLE = True
-
-
-# Data Sets
-DATASET_NAME = 'gehler'
-SUBSET = 0
-FOLD = 0
-TRAINING_FOLDS = []
-TEST_FOLDS = []
-
-
-def initialize_dataset_config(dataset_name=None, subset=None, fold=None):
+def initialize_dataset_config(dataset_name=None, subset=None):
     global DATASET_NAME, SUBSET, FOLD
     if dataset_name is not None:
         DATASET_NAME = dataset_name
@@ -93,14 +48,6 @@ def initialize_dataset_config(dataset_name=None, subset=None, fold=None):
     print(TRAINING_FOLDS)
     print(TEST_FOLDS)
     return TRAINING_FOLDS, TEST_FOLDS
-
-
-
-# --------------------------------
-#       Test
-# --------------------------------
-
-
 
 
 OVERRODE = {}

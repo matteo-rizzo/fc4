@@ -2,7 +2,7 @@ import os
 import pickle
 import sys
 
-from utils import print_angular_errors
+from auxiliary.utils import print_angular_errors
 
 
 def load_errors(model_name: str):

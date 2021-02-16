@@ -304,8 +304,7 @@ _activation_summary.summarized = []
 
 
 # Output: RGB images
-def get_visualization(images, illums_est, illums_pooled, illums_ground,
-                      target_shape):
+def get_visualization(images, illums_est, illums_pooled, illums_ground, target_shape):
     confidence = tf.sqrt(tf.reduce_sum(illums_est ** 2, axis=3))
 
     vis_confidence = confidence[:, :, :,
@@ -313,55 +312,41 @@ def get_visualization(images, illums_est, illums_pooled, illums_ground,
 
     color_thres = [tf.constant(250.0 * i) for i in range(1, 5)]
     mean_confidence_value = tf.reduce_mean(confidence, axis=(0, 1, 2))
-    vis_confidence_colored = tf.cond(mean_confidence_value < color_thres[0],
-                                     lambda: vis_confidence * np.array((0, 0, 1)).reshape(1, 1, 1, 3) / 500.0,
-                                     lambda: tf.cond(mean_confidence_value < color_thres[1],
-                                                     lambda: vis_confidence * np.array((0, 1, 1)).reshape(1, 1, 1,
-                                                                                                          3) / 1000.0,
-                                                     lambda: tf.cond(mean_confidence_value < color_thres[2],
-                                                                     lambda: vis_confidence * np.array(
-                                                                         (0, 1, 0)).reshape(1, 1, 1, 3) / 2000.0,
-                                                                     lambda: tf.cond(
-                                                                         mean_confidence_value < color_thres[3],
-                                                                         lambda: vis_confidence * np.array(
-                                                                             (1, 1, 0)).reshape(1, 1, 1, 3) / 3000.0,
-                                                                         lambda: vis_confidence * np.array(
-                                                                             (1, 0, 0)).reshape(1, 1, 1, 3) / 4000.0
-                                                                     )
-                                                                     )
-                                                     )
-                                     )
+    vis_confidence_colored = tf.cond(
+        mean_confidence_value < color_thres[0],
+        lambda: vis_confidence * np.array((0, 0, 1)).reshape(1, 1, 1, 3) / 500.0,
+        lambda: tf.cond(
+            mean_confidence_value < color_thres[1],
+            lambda: vis_confidence * np.array((0, 1, 1)).reshape(1, 1, 1, 3) / 1000.0,
+            lambda: tf.cond(
+                mean_confidence_value < color_thres[2],
+                lambda: vis_confidence * np.array((0, 1, 0)).reshape(1, 1, 1, 3) / 2000.0,
+                lambda: tf.cond(
+                    mean_confidence_value < color_thres[3],
+                    lambda: vis_confidence * np.array((1, 1, 0)).reshape(1, 1, 1, 3) / 3000.0,
+                    lambda: vis_confidence * np.array((1, 0, 0)).reshape(1, 1, 1, 3) / 4000.0)
+            )
+        )
+    )
 
     vis_est = tf.nn.l2_normalize(illums_est, 3)
 
     exposure_boost = 5
 
     img = tf.pow(images[:, :, :, ::-1] / 65535 * exposure_boost, 1 / VIS_GAMMA)
-    img_corrected = tf.pow(
-        images[:, :, :, ::-1] / 65535 / illums_pooled[:, None, None, :] * exposure_boost *
-        tf.reduce_mean(illums_pooled, axis=(1), keep_dims=True)[:, None, None, :],
-        1 / VIS_GAMMA)
+    img_corrected = tf.pow(images[:, :, :, ::-1] / 65535 / illums_pooled[:, None, None, :] * exposure_boost *
+                           tf.reduce_mean(illums_pooled, axis=(1), keep_dims=True)[:, None, None, :],
+                           1 / VIS_GAMMA)
 
-    visualization = [
-        img,
-        img_corrected,
-        vis_confidence_colored,
-        vis_confidence * vis_est,
-        vis_est,
-        # tf.nn.l2_normalize(illums_ground, 1)[:, None, None, :],
-        tf.nn.l2_normalize(illums_pooled, 1)[:, None, None, :]
-    ]
+    visualization = [img,
+                     img_corrected,
+                     vis_confidence_colored,
+                     vis_confidence * vis_est,
+                     vis_est,
+                     # tf.nn.l2_normalize(illums_ground, 1)[:, None, None, :],
+                     tf.nn.l2_normalize(illums_pooled, 1)[:, None, None, :]]
 
-    fcn_padding = 0  # = int(224.0 / int(images.get_shape()[1])  * target_shape[0]) // 2 # For receptive field offsets
-
-    ##################
-    confidence_dist = confidence[:, :, :, None] / tf.reduce_sum(
-        confidence, axis=(1, 2), keep_dims=True)[:, :, :, None]
-    mean_est = tf.reduce_mean(vis_est, axis=(1, 2), keep_dims=True)
-    sq_deviation = tf.pow(vis_est - mean_est, 2)
-    weighted_sq_dev = confidence_dist * sq_deviation
-    variance = tf.reduce_sum(weighted_sq_dev, axis=(1, 2))
-    ##################
+    fcn_padding = 0
 
     for i in range(len(visualization)):
         vis = visualization[i]
@@ -371,12 +356,10 @@ def get_visualization(images, illums_est, illums_pooled, illums_ground,
             padding = fcn_padding
         if int(vis.get_shape()[3]) == 1:
             vis = vis * np.array((1, 1, 1)).reshape(1, 1, 1, 3)
-        vis = tf.image.resize_images(vis, (target_shape[0] - padding * 2, target_shape[1] - padding * 2),
+        vis = tf.image.resize_images(vis,
+                                     (target_shape[0] - padding * 2, target_shape[1] - padding * 2),
                                      method=tf.image.ResizeMethod.AREA)
-
-        vis = tf.pad(vis,
-                     tf.constant([[0, 0], [padding, padding], [padding, padding],
-                                  [0, 0]]))
+        vis = tf.pad(vis, tf.constant([[0, 0], [padding, padding], [padding, padding], [0, 0]]))
         vis = tf.pad(vis - 1, tf.constant([[0, 0], [4, 4], [4, 4], [0, 0]])) + 1
         visualization[i] = vis
 
@@ -385,14 +368,10 @@ def get_visualization(images, illums_est, illums_pooled, illums_ground,
     visualization_lines = []
     images_per_line = 3
     for i in range(len(visualization) // images_per_line):
-        visualization_lines.append(
-            tf.concat(
-                axis=2,
-                values=visualization[i * images_per_line:(i + 1
-                                                          ) * images_per_line]))
+        visualization_lines.append(tf.concat(axis=2,
+                                             values=visualization[i * images_per_line:(i + 1) * images_per_line]))
     visualization = tf.maximum(0.0, tf.concat(axis=1, values=visualization_lines))
     print('visualization shape', visualization.shape)
-
     return visualization
 
 

@@ -2,10 +2,10 @@ import random
 
 import numpy as np
 
+from auxiliary.settings import FCN_INPUT_SIZE
 from auxiliary.utils import load_data
-from classes.data.DataAugmenter import DataAugmenter
+from classes.data.DataAugmenter import DataAugmenter, AUGMENTATION, DATA_SHUFFLE
 from scripts.condition import AsyncTaskManager
-from config import *
 
 
 class DataProvider:

@@ -6,9 +6,9 @@ import numpy as np
 import scipy
 
 from auxiliary.settings import DATA_FRAGMENT, BOARD_FILL_COLOR
+from auxiliary.utils import slice_list
 from classes.data.ImageRecord import ImageRecord
 from classes.data.datasets.Dataset import Dataset
-from utils import slice_list
 
 
 class ChengDataset(Dataset):

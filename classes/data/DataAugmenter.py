@@ -4,8 +4,22 @@ import random
 import cv2
 import numpy as np
 
-from config import *
-from utils import rotate_and_crop
+from auxiliary.settings import FCN_INPUT_SIZE
+from auxiliary.utils import rotate_and_crop
+
+AUGMENTATION = True
+AUGMENTATION_ANGLE = 60
+AUGMENTATION_SCALE = [0.1, 1.0]
+AUGMENTATION_FLIP_LEFTRIGHT = True
+AUGMENTATION_FLIP_TOPDOWN = False
+AUGMENTATION_COLOR = 0.8
+AUGMENTATION_COLOR_OFFDIAG = 0.0
+AUGMENTATION_GAMMA = 0.0
+USE_CURVE = False
+SPATIALLY_VARIANT = False
+INPUT_GAMMA = 2.2
+VIS_GAMMA = 2.2
+DATA_SHUFFLE = True
 
 
 class DataAugmenter:
