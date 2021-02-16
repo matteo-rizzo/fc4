@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import math
 import os
 import pickle
@@ -106,7 +102,7 @@ class FullyConvNet:
                                                      self.illuminants,
                                                      (VISUALIZATION_SIZE, VISUALIZATION_SIZE))
 
-        self.loss = self.get_angular_loss(tf.reduce_sum(fc2, axis=(1, 2)), self.illuminants, LENGTH_REGULARIZATION)
+        self.loss = self.get_angular_loss(tf.reduce_sum(fc2, axis=(1, 2)), self.illuminants)
         self.scalar_summaries = tf.summary.merge([tf.summary.scalar('loss', self.loss)])
 
         reg_losses = tf.add_n(slim.losses.get_regularization_losses())

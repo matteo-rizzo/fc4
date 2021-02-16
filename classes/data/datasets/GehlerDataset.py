@@ -2,7 +2,7 @@ import os
 
 import cv2
 import numpy as np
-import scipy
+import scipy.io
 
 from auxiliary.settings import DATA_FRAGMENT, FOLDS, BOARD_FILL_COLOR
 from classes.data.ImageRecord import ImageRecord
@@ -18,14 +18,10 @@ class GehlerDataset(Dataset):
         print("Loading and shuffle fn_and_illum[]")
 
         meta_data = []
-        ground_truth = scipy.io.loadmat(os.path.join(self.get_directory() + "ground_truth.mat"))["real_rgb"]
+        ground_truth = scipy.io.loadmat(os.path.join(self.get_directory(), "ground_truth.mat"))["real_rgb"]
         ground_truth /= np.linalg.norm(ground_truth, axis=1)[..., np.newaxis]
         filenames = sorted(os.listdir(os.path.join(self.get_directory(), "images")))
         folds = scipy.io.loadmat(os.path.join(self.get_directory(), "folds.mat"))
-        filenames2 = map(lambda x: str(x[0][0][0]), folds['Xfiles'])
-
-        for i in range(len(filenames)):
-            assert filenames[i][:-4] == filenames2[i][:-4]
 
         for i in range(len(filenames)):
             file_name = filenames[i]
@@ -55,8 +51,8 @@ class GehlerDataset(Dataset):
         self.dump_meta_data(meta_data_folds)
 
     def get_mcc_coord(self, file_name):
-        # Note: relative coord
-        lines = open(self.get_directory() + 'coordinates/' + file_name.split('.')[0] + '_macbeth.txt', 'r').readlines()
+        path_to_coords = os.path.join(self.get_directory(), "coordinates", file_name.split('.')[0] + '_macbeth.txt')
+        lines = open(path_to_coords, 'r').readlines()
         width, height = map(float, lines[0].split())
         scale_x, scale_y = 1 / width, 1 / height
         lines = [lines[1], lines[2], lines[4], lines[3]]

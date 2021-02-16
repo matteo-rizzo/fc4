@@ -27,18 +27,18 @@ class Dataset:
     def get_img_directory(self):
         return os.path.join("data", self.get_name())
 
-    def get_meta_data_fn(self):
+    def get_metadata_file_name(self):
         return os.path.join(self.get_directory(), self.get_subset_name(), "meta.pkl")
 
     def dump_meta_data(self, meta_data):
-        print("\n Dumping data =>", self.get_meta_data_fn())
+        print("\n Dumping data =>", self.get_metadata_file_name())
         print("\t Total records:", sum(map(len, meta_data)))
         print("\t Slices:", map(len, meta_data))
-        pickle.dump(meta_data, open(self.get_meta_data_fn(), 'wb'), protocol=-1)
+        pickle.dump(meta_data, open(self.get_metadata_file_name(), 'wb'), protocol=-1)
         print("\n Dumped!")
 
     def load_meta_data(self):
-        return pickle.load(open(self.get_meta_data_fn()))
+        return pickle.load(open(self.get_metadata_file_name()))
 
     def get_image_pack_fn(self, fold):
         return os.path.join(self.get_directory(), self.get_subset_name(), "image_pack.{:d}.pkl".format(fold))
@@ -47,7 +47,7 @@ class Dataset:
         pickle.dump(image_pack, open(self.get_image_pack_fn(fold), 'wb'), protocol=-1)
 
     def load_image_pack(self):
-        return pickle.load(open(self.get_meta_data_fn()))
+        return pickle.load(open(self.get_metadata_file_name()))
 
     def regenerate_image_pack(self, meta_data, fold):
         image_pack = []
